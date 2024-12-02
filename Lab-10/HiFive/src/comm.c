@@ -23,15 +23,13 @@ void auto_brake(int devid)
         // Brake light indicator
         if (dist <= 60) { // 60 cm
             // Too close, must stop
-            uint64_t timer = get_cycles();
-            int red_light_on = 1;
-            if ((timer / 100000) % 2 == 0) { // 100ms
-                red_light_on = 0;
-            }
-
-            gpio_write(RED_LED, red_light_on);
+            gpio_write(RED_LED, 1);
             gpio_write(GREEN_LED, 0);
             gpio_write(BLUE_LED, 0);
+
+            delay(100);
+            gpio_write(RED_LED, 0);
+            delay(100);
         } else if (dist <= 100) { // 100 cm
             //Very close, break hard
             gpio_write(RED_LED, 1);
@@ -104,13 +102,13 @@ int main()
 
     int tick_timer = 0;
 
-    while (1) {
-        tick_timer++;
+   while (1) {
+       tick_timer++;
 
 
         auto_brake(lidar_to_hifive); // measuring distance using lidar and braking
         int angle = read_from_pi(pi_to_hifive); //getting turn direction from pi
-        printf("\nangle=%d", angle) 
+        printf("angle=%d\n", angle) 
         int gpio = PIN_19; 
         for (int i = 0; i < 10; i++){
             // Here, we set the angle to 180 if the prediction from the DNN is a positive angle
@@ -119,18 +117,18 @@ int main()
             // You are welcome to pass the angle values directly to the steering function.
             // If the servo function is written correctly, it should still work,
             // only the movements of the servo will be more subtle
-            if(angle>0){
-                steering(gpio, 180);
-            }
-            else {
-                steering(gpio,0);
-            }
+            // if(angle>0){
+            //     steering(gpio, 180);
+            // }
+            // else {
+            //     steering(gpio,0);
+            // }
             
             // Uncomment the line below to see the actual angles on the servo.
             // Remember to comment out the if-else statement above!
-            // steering(gpio, angle);
-        }
+            steering(gpio, angle);
+       }
 
-    }
-    return 0;
+   }
+   return 0;
 }
